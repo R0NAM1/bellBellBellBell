@@ -10,10 +10,12 @@ import traceback
 ## When the minute rolls over force set the flag to false
 ## Also check if it is Sun - Sat, only work on configured days
 
-bellExtension = '6000' # Extension to call that will act as the bell interface
+myIpAddress = '10.42.0.8' # Put in the address on the interface you want to use
+bellExtension = 6001 # INT # Extension to call that will act as the bell interface
 sipUsername = '9010'
 sipPassword = 'password'
 sipServer = '10.36.0.50'
+sipServerPort = 5060
 bellWav = 'bell.wav' # MUST BE 8000hz mono
 
 # Comment out days that don't need to ring
@@ -49,41 +51,62 @@ timesToRing = [
     "15:30"
 ]
 
-def answerCallback():
-    try:
-        # Dial extension 9000
-        print("-- Dialing Specified SIP Extension " + bellExtension + ".")
-        call.dial("sip:" + bellExtension + "@" + sipServer)
-        
-        # Wait for the call to connect
-        while call.state != CallState.ANSWERED:
-            time.sleep(0.1)
-        print("-- Call answered!")
+def attemptCall(phoneObject):
+    print("-- Dialing Specified SIP Extension " + str(bellExtension) + ".")
+    counter = 1
+    callHappened = False # Failsafe so we don't accidently double call
+    
+    # Open and read the audio file into memory
+    f = wave.open(bellWav, 'rb')
+    frames = f.getnframes()
+    wavdata = f.readframes(frames)
+    f.close()
+    print("-- WAV read into as a " + str(len(wavdata)) + " byte long array")
+    
+    while True:
+        try:
+            if callHappened:
+                break
+            
+            print("===============================")
+            print("---- Attempt " + str(counter) + "...")
+            # Dial extension 9000
+            mycall = phoneObject.call(bellExtension)
+            
+            # Wait for the call to connect
+            while mycall.state != CallState.ANSWERED:
+                time.sleep(0.1)
+            print("-- Call answered! Waiting 2 seconds to let stream stabilize...")
+            time.sleep(2) # Waiting 2 seconds to let stream stabilize
 
-        # Open and read the audio file into memory
-        f = wave.open(bellWav, 'rb')
-        frames = f.getnframes()
-        data = f.readframes(frames)
-        f.close()
-        print("-- WAV read into memory, playing over active SIP connection.")
+            # Play the audio over the SIP call
+            print("-- Writing audio to SIP stream...")
+            mycall.write_audio(wavdata)
+            print("-- Audio written to SIP stream!")
+            callHappened = True
+            
+            # Wait for the audio to finish playing
+            stop = time.time() + (frames / 8000)
+            while time.time() <= stop:
+                time.sleep(0.1)
 
-        # Play the audio over the SIP call
-        call.write_audio(data)
 
-        # Wait for the audio to finish playing
-        stop = time.time() + (frames / 8000)
-        while time.time() <= stop and call.state == CallState.ANSWERED:
-            time.sleep(0.1)
-
-        print("-- WAV read into SIP connection, hanging up!")
-        
-        # Hang up the call
-        call.hangup()
-        
-    except Exception as e:
-        print(f"!! An error occurred: {e}")
-        print("Traceback follows as: " + str(traceback.format_exc()))
-        call.hangup()
+            print("-- Audio should have played all the way, hanging up...")
+            print("======================================================")
+            print("")
+            
+            # Hang up the call
+            mycall.hangup()
+            # Sleep for an additional two seconds...
+            time.sleep(2)
+            phoneObject.stop()
+            break # Break out of forever loop
+            
+        except Exception as e:
+            print(f"!! An error occurred: {e}")
+            print("Traceback follows as: " + str(traceback.format_exc()))
+            counter = counter + 1
+            time.sleep(1)
 
 # Main loop
 # Single threaded so while True is acceptable here since SIGINT will be caught just fine
@@ -96,7 +119,7 @@ if __name__ == '__main__':
         # Sleep for 1 second
         time.sleep(1)
         
-        current_date = date.today()
+        current_date = datetime.today()
         formatted_date = current_date.strftime("%Y-%m-%d")
         dayOfTheWeek = pandas.to_datetime(formatted_date)
         
@@ -109,24 +132,25 @@ if __name__ == '__main__':
             formatted_time = rounded_minute.strftime("%H:%M")
             
             if formatted_time in timesToRing:
+                
                 # We are in a ringable minute and need to ring the bell!
                 print("Time to ring bell at " + formatted_time + " on " + formatted_date + "!")
-                # Bell has rung! Wait 60 seconds to it's sure for an entire minute to pass, people don't put bells 3 minutes apart, 
-                # always 5!
                 
-                phone = VoIPPhone(
+                phoneObject = VoIPPhone(
                     sipServer,
-                    "6000",
+                    sipServerPort,
                     sipUsername,
                     sipPassword,
-                    myIP="<Your computer's local IP>",
-                    callCallback=answerCallback
+                    myIP=myIpAddress
                 )
                 
-                phone.start()
-                time.sleep(10)
-                phone.stop()
+                phoneObject.start()
+                print("-- Phone object created & started, attempting call!")
                 
-                print("-- Sleeping for 60 seconds to not ring again...")
-                time.sleep(50)
+                attemptCall(phoneObject)
+                print("-- Call done! Sleeping for 60 seconds to not ring again...")
+                
+                # Bell has rung! Wait 60 seconds to it's sure for an entire minute to pass, people don't put bells 3 minutes apart, 
+                time.sleep(60)
+                
                 # Continue loop!
