@@ -70,6 +70,11 @@ def attemptCall(phoneObject):
             
             print("===============================")
             print("---- Attempt " + str(counter) + "...")
+            
+            if (counter > 10):
+                print("---- Over 10 Attempts! Abandoning all hope! (breaking)")
+                break            
+            
             # Dial extension 9000
             mycall = phoneObject.call(bellExtension)
             
