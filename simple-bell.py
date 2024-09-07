@@ -61,7 +61,7 @@ def attemptCall(phoneObject):
     frames = f.getnframes()
     wavdata = f.readframes(frames)
     f.close()
-    print("-- WAV read into as a " + str(len(wavdata)) + " byte long array")
+    # print("-- WAV read into as a " + str(len(wavdata)) + " byte long array")
     
     while True:
         try:
@@ -81,13 +81,13 @@ def attemptCall(phoneObject):
             # Wait for the call to connect
             while mycall.state != CallState.ANSWERED:
                 time.sleep(0.1)
-            print("-- Call answered! Waiting 2 seconds to let stream stabilize...")
+            print("---- Call answered! Waiting 2 seconds to let stream stabilize...")
             time.sleep(2) # Waiting 2 seconds to let stream stabilize
 
             # Play the audio over the SIP call
-            print("-- Writing audio to SIP stream...")
+            print("---- Writing audio to SIP stream...")
             mycall.write_audio(wavdata)
-            print("-- Audio written to SIP stream!")
+            print("---- Audio written to SIP stream!")
             callHappened = True
             
             # Wait for the audio to finish playing
@@ -96,7 +96,7 @@ def attemptCall(phoneObject):
                 time.sleep(0.1)
 
 
-            print("-- Audio should have played all the way, hanging up...")
+            print("---- Audio should have played all the way, hanging up...")
             print("======================================================")
             print("")
             
@@ -116,8 +116,8 @@ def attemptCall(phoneObject):
 # Main loop
 # Single threaded so while True is acceptable here since SIGINT will be caught just fine
 if __name__ == '__main__':
-    print("Simple bellBellBellBell started!")
-    print("")
+    print("===== Simple bellBellBellBell started! =====")
+    print("Note: 500 message is from the pyVoIP library")
     
     while True:
         # Loop start!
@@ -139,8 +139,9 @@ if __name__ == '__main__':
             if formatted_time in timesToRing:
                 
                 # We are in a ringable minute and need to ring the bell!
-                print("Time to ring bell at " + formatted_time + " on " + formatted_date + "!")
+                print("-- Time to ring bell at " + formatted_time + " on " + formatted_date + "!")
                 
+                # We just regegister every time so we don't have to deal with the registration expiring, which happens!
                 phoneObject = VoIPPhone(
                     sipServer,
                     sipServerPort,
@@ -150,7 +151,7 @@ if __name__ == '__main__':
                 )
                 
                 phoneObject.start()
-                print("-- Phone object created & started, attempting call!")
+                print("-- Phone object created, registered & started, attempting call!")
                 
                 attemptCall(phoneObject)
                 print("-- Call done! Sleeping for 60 seconds to not ring again...")
