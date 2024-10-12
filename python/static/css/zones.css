@@ -1,0 +1,94 @@
+#main-content {
+    justify-content: center;
+    text-align: center;
+}
+
+#dataField {
+    background-color: #7b7b7b;
+    display: inline-block;
+    border: 6px solid rgba(0, 0, 0, 0.1);
+    border-radius: 60px;
+    margin: 25px;
+    padding: 25px;
+}
+
+.statsBlock {
+    position: relative;
+    display: inline-block;
+    text-align: center;
+    box-shadow: 4px 4px rgb(75, 75, 75);
+    border: 5px solid  rgba(0, 0, 0, 0.1);
+    border-radius: 25px;
+    background-color: #666666;
+    width: auto;
+    height: auto;
+    padding: 15px;
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-left: 25px;
+    margin-right: 25px;
+    overflow-y: scroll;
+    /* top: -95%; */
+    /* transform: translateY(95%); */
+}
+
+.subhead {
+    display: inline-block;
+    position: sticky top;
+    background-color: #888888;
+    padding: 10px;
+    border-radius: 15px;
+    margin: 0;
+    overflow-inline: hidden;
+    border: 4px solid rgba(0, 0, 0, 0.4);
+}
+
+.subhead-block {
+    display: block;
+    position: sticky top;
+    background-color: #888888;
+    padding: 10px;
+    border-radius: 15px;
+    margin-bottom: 15px;
+    overflow-inline: hidden;
+    border: 4px solid rgba(0, 0, 0, 0.4);
+}
+
+.subdata {
+    display: block;
+    text-align: center;
+    background-color: #888888;
+    padding: 5px;
+    border-radius: 15px;
+    border: 4px solid rgba(0, 0, 0, 0.2);
+}
+
+.subdataThreads {
+    display: block;
+    text-align: center;
+    background-color: #888888;
+    padding: 5px;
+    border-radius: 15px;
+    margin: 5px;
+    border: 4px solid rgba(0, 0, 0, 0.2);
+}
+
+.subdataUsers {
+    display: block;
+    text-align: center;
+    background-color: #888888;
+    padding: 5px;
+    border-radius: 15px;
+    margin: 5px;
+    border: 4px solid rgba(0, 0, 0, 0.2);
+}
+
+#threadsactiveDropdown {
+    margin: 15px;
+    overflow-y: scroll;
+}
+
+#threadstats {
+    height: 340px;
+    width: 270px;
+}

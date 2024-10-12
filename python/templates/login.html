@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <title>Bell Login</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/login.css')}}">
+  </head>
+
+  <body>
+
+
+    <img id='logoimage' src="{{url_for('static', filename='pictures/logo_shadow.png')}}"/>
+
+    <div id="loginstuff">
+
+      <form id="mainform" action="" method="post">
+
+        <input type="text" placeholder="Username" name="username" value="{{request.form.username }}">
+
+        <br>
+
+        <input type="password" placeholder="Password" name="password" value="{{request.form.password }}">
+
+        <br>
+
+        <input class="btn btn-default" type="submit" value="Login">
+
+      </form>
+
+    </div>
+
+    {% if error %}
+    <p class="error"><strong>Error:</strong> {{ error }}
+    {% endif %}
+    {% for mesg in get_flashed_messages() %}
+    <h1 id="feedback">{{ mesg }}</h1>
+    {% endfor %}
+
+  </body>
+
+</html>

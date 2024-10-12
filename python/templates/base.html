@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/base.css')}}">
+    <title>bellBellBellBell</title>
+  </head>
+
+  <body>
+    <nav class="navbar">
+      <a id="logo" href="/zones/">  
+        <img src="{{url_for('static', filename='pictures/logo_shadow.png')}}"/>
+      </a>
+      
+      <a class="navItem" href="/zones/">
+          <h4>Zones</h4>
+        </a>
+        
+        <a class="navItem" href="/settings/">
+          <h4>Settings</h4>
+        </a>
+        
+        <div id="userHover">
+          <div class="username navItem">
+            {{ current_user.username }}
+          </div>
+          <div id="usernameDropdown">
+            <div id="logout">
+              <a href="/logout/">
+                <h4>Logout</h4>
+              </a>
+            </div>
+          </div>
+        </div>
+        
+      </nav>
+      
+      <div class="container" id="main-content">
+        {% block content %} {% endblock %}
+      </div>
+      
+      <div class="bottom-bar">
+        <span class="versionids">Commit Hash: {{ commit_id }} | {{ release_id }}</span>
+      </div>
+    </body>
+      <script src="{{url_for('static', filename='js/base.js')}}"></script>
+    </html>

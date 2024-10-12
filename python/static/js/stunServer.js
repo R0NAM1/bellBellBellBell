@@ -1,0 +1,1 @@
+export let stunServer = {"urls": "stun:10.42.0.8"}

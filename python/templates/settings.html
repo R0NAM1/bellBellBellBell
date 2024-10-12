@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %}  {% endblock %}</h1>
+    <h3>-</h3> <a class="nav-link" href="/settings/add_user">Add User</a>
+    <h3>-</h3> <a class="nav-link" href="/settings/reset_password">Reset User Password</a>
+    <h3>-</h3> <a class="nav-link" href="/settings/sync_ldap">Sync LDAP To User DB</a>
+    <h3>-</h3> <a class="nav-link" href="/settings/delete_user">Delete User</a>
+    <h3>-</h3> <a class="nav-link" href="/settings/manage_perms">Manage User Permissions</a>
+    <h3>-</h3> <a class="nav-link" href="/settings/audit_log">Show and Sort Audit Log</a>
+    <h3>-</h3> <a class="nav-link" href="/settings/add_camera">Add Camera With Onvif AutoConfigure</a>
+    <h3>-</h3> <a class="nav-link" href="/settings/add_camera_manual">Add Camera Manually</a>
+    <h3>-</h3> <a class="nav-link" href="/settings/camera_models">Camera Models</a>
+    <h3>-</h3> <a class="nav-link" href="/settings/delete_camera">Delete Camera</a>
+    <h3>-</h3>
+{% endblock %}

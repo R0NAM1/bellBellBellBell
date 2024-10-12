@@ -1,0 +1,118 @@
+.navbar {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  top: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  height: 70px;
+  padding-left: 25px;
+  padding-right: 65px;
+  z-index: 99;
+  background-color: #b45100;
+  color: #ffffff;
+  border-bottom: 2px solid black;
+
+}
+
+.navbar a {
+  color: white;
+  text-decoration: none;
+  text-align: center;
+  font-weight: bold;
+}
+
+.navbar h4 {
+  margin: 0;
+}
+
+.navbar img {
+  width: 380px;
+  transition: all 0.5s;
+  padding-top: 5px;
+  position: absolute;
+  top: 0px;
+  left: -45px;
+}
+
+.navbar img:hover {
+  filter: invert(1);
+}
+
+.navItem {
+  border: 2px solid black;
+  border-radius: 13px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  transition: all 0.25s;
+  background-color: rgba(0, 0, 0, 0);
+}
+
+.navItem:hover {
+  background-color: #666666;
+}
+
+.versionids {
+  color: whitesmoke
+}
+
+.username {
+  color: whitesmoke
+}
+
+
+.username {
+  font-size: 18px;
+}
+
+
+#main-content {
+  position: relative;
+}
+
+body {
+  background: linear-gradient(to bottom, #c27b41, #eb954f);
+  color: #ffffff;
+  margin: 0;
+  height: 100vh;
+}
+
+body a {
+  color: #ffffff;
+  transition: 50ms;
+}
+
+body a:hover {
+  color: lightskyblue;
+}
+
+.bottom-bar {
+  background-color: #492100;
+  padding: 6px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  z-index: 99;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+#usernameDropdown {
+  display: none;
+  position: absolute;
+  background-color: #b45100;
+  padding: 5px;
+  border-radius: 10px;
+  border: 2px solid #444444
+}
+
+#usernameDropdown:hover {
+  cursor: pointer;
+  background-color: #666666;
+}
