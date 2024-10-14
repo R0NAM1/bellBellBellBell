@@ -23,14 +23,28 @@ else:
 
     cursor.execute("""CREATE TABLE schedules (
     schedule_label TEXT NOT NULL,
-    schedule_entries TEXT NOT NULL);""") # Serialize ARRAYS to TEXT 
+    schedule_entries TEXT NOT NULL);""") # Serialize ARRAYS to TEXT
+    
+    cursor.execute("""CREATE TABLE zones (
+    zone_label TEXT NOT NULL,
+    zone_bell_extension TEXT NOT NULL,
+    zone_sip_remote_server TEXT NOT NULL,
+    zone_sip_port TEXT NOT NULL,
+    zone_sip_extension TEXT NOT NULL,
+    zone_sip_password TEXT NOT NULL);""")
 
     # Insert the admin data into the table
     cursor.execute("""
     INSERT INTO userTable (username, password, isAdmin) 
     VALUES (?, ?, ?);
     """, ('admin', 'password', 1))
- 
+    
+    # Temp data
+    cursor.execute("""
+    INSERT INTO zones (zone_label, zone_bell_extension, zone_sip_remote_server, zone_sip_port, zone_sip_extension, zone_sip_password) 
+    VALUES (?, ?, ?, ?, ?, ?);
+    """, ('ExampleZone', '6001', "10.10.10.10", "5060", "9100", "passwordsecretkey"))
+     
     databaseConnection.commit()
     databaseConnection.close()
 

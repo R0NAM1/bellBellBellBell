@@ -1,0 +1,131 @@
+#main-content {
+    justify-content: center;
+    text-align: center;
+    
+}
+  
+#debug {
+    display: none;
+}
+
+.calendar-container {
+position: relative;
+left: 50%;
+transform: translateX(-50%);
+border: 5px solid black;
+padding: 20px;
+border-radius: 10px;
+width: 60%;
+font-size: 12px;
+padding-top: 0px;}
+
+.calendar-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: -5px;
+}
+
+.calendar-header button {
+padding: 4px;
+font-size: 25px;
+cursor: pointer;
+}
+
+#year-label {
+font-size: 50px;
+font-weight: bold;
+}
+
+#calendar {
+display: grid;
+grid-template-columns: repeat(4, 1fr);
+gap: 10px;
+text-align: center;
+}
+
+.month {
+display: flex;
+flex-direction: column;
+border: 1px solid #636363;
+padding: 10px;
+}
+
+.month-name {
+font-weight: bold;
+margin-bottom: 10px;
+}
+
+.weekdays, .days {
+display: grid;
+grid-template-columns: repeat(7, 1fr);
+text-align: center;
+margin-bottom: 5px;
+border: 1px solid #636363;
+}
+
+.weekdays span {
+font-weight: bold;
+}
+
+.days span {
+padding: 5px;
+border-radius: 5px;
+border: 1px solid #636363;
+}
+
+.days span:not(:empty) {
+background-color: #00813a;
+}
+
+.days span.today {
+background-color: #bd00c4;
+}
+
+#colorEntry {
+    position: relative;
+    border: 2px solid #636363;
+    margin: 10px;
+    padding: 5px;
+    text-align: right;
+    background-color: rgba(223, 0, 0, 0.185);
+}
+
+#colorIds {
+    border: 3px solid #636363;
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 16.5%;
+    margin: 15px;
+    height: 90%;
+}
+
+#coloredCircle {
+    position: absolute;
+    width: 25px;      /* Adjust the width */
+    height: 25px;     /* Make height equal to width for a perfect circle */
+    background-color: #00813a; /* Change this to any color you want */
+    border-radius: 50%;    /* This makes it a circle */
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+#setEveryContainer {
+    position: absolute;
+    border: 3px solid #636363;
+    top: 0;
+    left: 3%;
+    margin: 15px;
+    padding: 5px;
+}
+
+#scheduleList {
+    border: 3px solid #636363;
+    position: absolute;
+    top: 13%;
+    left: 0;
+    width: 16.5%;
+    margin: 15px;
+    height: 80%;
+}

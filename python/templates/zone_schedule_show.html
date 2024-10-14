@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{{url_for('static', filename='css/zone_schedule_show.css')}}">
+
+<div id="debug">
+    "This will be a js app that generates a yearly calander that can be toggeled left or right to the previous or forward year."
+    "You can select a specific day and change the schedule, or set every X day to be a certain schedule."
+    "You can also create and edit schedules"
+</div>
+
+<div id="setEveryContainer">
+    Set Every 
+    <select name="days" id="days">
+      <option value="Sunday">Sunday</option>
+      <option value="Monday">Monday</option>
+      <option value="Tuesday">Tuesday</option>
+      <option value="Wednesday">Wednesday</option>
+      <option value="Thursday">Thursday</option>
+      <option value="Friday">Friday</option>
+      <option value="Saturday">Saturday</option>
+    </select> 
+    
+    <br>
+    
+    to 
+    
+    <select name="schedules" id="schedules">
+        <option value="Default Schedule">Default Schedule</option>
+    </select>
+
+    <br>
+
+    <button id="applyEveryDay">Apply</button>
+
+</div>
+
+<div id="scheduleList">
+    This is a list of schedules with time details & wav name, along with edit button
+    <div id="scheduleEntry">
+        <div id="scheduleName">
+            Default Schedule
+        </div>
+        <div id="scheduleDetails">
+            - 08:10
+            - 08:15
+            - 09:10
+            - 09:15
+            - 10:10
+            - 10:15
+            - 11:10
+            - 11:15
+            - 12:10
+            - 12:40
+            - 12:45
+            - 13:35
+            - 13:40
+            - 14:35
+            - 14:40
+            - 15:30
+        </div>
+
+        <button id="editSchedule">Edit</button>
+
+    </div>
+</div>
+
+
+<div class="calendar-container">
+    <div class="calendar-header">
+        <button id="prev-year">&lt;</button>
+        <span id="year-label"></span>
+        <button id="next-year">&gt;</button>
+    </div>
+    <div id="calendar"></div>
+</div>
+
+<div id="colorIds">
+    <div id="colorEntry">
+        <div id="coloredCircle">
+        </div>
+        <div id="label">
+            Default Schedule
+        </div>
+    </div>
+</div>
+
+<script src="{{url_for('static', filename='js/zone_schedule_show.js')}}"></script>
+
+
+{% endblock %}

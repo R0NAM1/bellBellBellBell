@@ -1,4 +1,4 @@
-import sqlite3, pathlib, time
+import sqlite3, pathlib, time, sys
 
 passwordRandomKey = 'ChangeMeToo!'
 databasePath = "bellBellBellBell.db";
@@ -19,3 +19,6 @@ def doDatabaseQuery(callToMake):
     
 def checkIfDatabaseExists():
     databasePath = pathlib.Path("bellBellBellBell.db")
+    if not databasePath.is_file():
+        print("bellBellBellBell.db not found, cannot start program!")
+        sys.exit(0)

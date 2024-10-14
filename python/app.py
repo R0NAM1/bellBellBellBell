@@ -12,7 +12,9 @@ from waitress import serve # Production server
 from sqlescapy import sqlescape
 # Worry about imports later, will trim out fat!
 
+# In program imports
 from userManagement import verifyUserPassword
+from database import checkIfDatabaseExists, doDatabaseQuery
 
 app = Flask(__name__)
 login_manager = LoginManager(app)
@@ -88,6 +90,10 @@ def load_user(username):
 def index():
     return redirect(url_for('dashboard'))
 
+@app.route('/favicon.ico')
+def returnIcon():
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
 # Route for handling the login page logic
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
@@ -149,6 +155,23 @@ def zones():
     # Permission Check Dashboard
     return render_template('zones.html', commit_id=commit_id, release_id=release_id)
 
+@app.route('/zones/<zone_label>')
+# @login_required
+def zone_examine(zone_label):
+    session.pop('_flashes', None)
+    
+    # Query DB to check is string 'zone_label' exists in zones table
+    # If query excepts then does not exist
+    try:
+        dbReturn = doDatabaseQuery("Select * from zones WHERE zone_label='{0}'".format(zone_label))[0]
+        # Does exist, continue.
+        return render_template('zone_schedule_show.html', commit_id=commit_id, release_id=release_id)
+    
+    except:
+        # Does not exist, 
+        return("Zone does not exist.")
+        
+
 def stopPyVoipDebug():
     # Copied from ChatGPT, I have no shame.
     class FilteredOutput:
@@ -181,6 +204,8 @@ def startWebClient():
 if __name__ == '__main__':
     # For when needed
     # tracemalloc.start()
+    
+    checkIfDatabaseExists()
             
     setCommitID()
     stopPyVoipDebug()
