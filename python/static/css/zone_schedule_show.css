@@ -99,6 +99,7 @@ background-color: #bd00c4;
     width: 16.5%;
     margin: 15px;
     height: 90%;
+    overflow-y: auto;
 }
 
 #coloredCircle {
@@ -127,5 +128,24 @@ background-color: #bd00c4;
     left: 0;
     width: 16.5%;
     margin: 15px;
-    height: 80%;
+    height: 70%;
+    font-size: 12px;
+    overflow-y: auto;
+}
+
+#scheduleEntry {
+    border: 3px solid #636363;
+    margin: 5px;
+}
+
+#lockdownButton {
+    border: 3px solid #636363;
+    background-color: #a00000;
+    position: absolute;
+    bottom: 5.5%;
+    left: 0;
+    margin-left: 15px;
+    width: 16.5%;
+    height: 44px;
+    font-size: 30px;
 }

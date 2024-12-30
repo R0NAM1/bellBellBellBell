@@ -15,7 +15,8 @@ else:
     cursor.execute("""CREATE TABLE IF NOT EXISTS userTable (
     username VARCHAR(50) NOT NULL,
     password VARCHAR(5000) NOT NULL,
-    isAdmin INT(0) NOT NULL);""")
+    isAdmin INT(0) NOT NULL,
+    allowedZones VARCHAR);""")
     
     cursor.execute("""CREATE TABLE nonDefaultDates (
     schedule_date DATE NOT NULL,
@@ -24,6 +25,11 @@ else:
     cursor.execute("""CREATE TABLE schedules (
     schedule_label TEXT NOT NULL,
     schedule_entries TEXT NOT NULL);""") # Serialize ARRAYS to TEXT
+    
+    cursor.execute("""CREATE TABLE schedule_entries (
+    schedule_label TEXT NOT NULL,
+    schedule_time_to_ring TEXT NOT NULL,
+    schedule_bellsound_filename TEXT NOT NULL);""") # Serialize ARRAYS to TEXT
     
     cursor.execute("""CREATE TABLE zones (
     zone_label TEXT NOT NULL,
@@ -35,15 +41,28 @@ else:
 
     # Insert the admin data into the table
     cursor.execute("""
-    INSERT INTO userTable (username, password, isAdmin) 
-    VALUES (?, ?, ?);
-    """, ('admin', 'password', 1))
+    INSERT INTO userTable (username, password, isAdmin, allowedZones) 
+    VALUES (?, ?, ?, ?);
+    """, ('admin', 'password', True, '["ExampleZone"]'))
     
     # Temp data
     cursor.execute("""
     INSERT INTO zones (zone_label, zone_bell_extension, zone_sip_remote_server, zone_sip_port, zone_sip_extension, zone_sip_password) 
     VALUES (?, ?, ?, ?, ?, ?);
-    """, ('ExampleZone', '6001', "10.10.10.10", "5060", "9100", "passwordsecretkey"))
+    """, ('ExampleZone0', '6001', "10.10.10.10", "5060", "9100", "passwordsecretkey"))
+     
+     
+    cursor.execute("""
+    INSERT INTO zones (zone_label, zone_bell_extension, zone_sip_remote_server, zone_sip_port, zone_sip_extension, zone_sip_password) 
+    VALUES (?, ?, ?, ?, ?, ?);
+    """, ('ExampleZone1', '6001', "10.10.10.10", "5060", "9100", "passwordsecretkey"))
+     
+     
+    cursor.execute("""
+    INSERT INTO zones (zone_label, zone_bell_extension, zone_sip_remote_server, zone_sip_port, zone_sip_extension, zone_sip_password) 
+    VALUES (?, ?, ?, ?, ?, ?);
+    """, ('ExampleZone2', '6001', "10.10.10.10", "5060", "9100", "passwordsecretkey"))
+     
      
     databaseConnection.commit()
     databaseConnection.close()

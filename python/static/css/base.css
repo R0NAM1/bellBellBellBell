@@ -112,7 +112,15 @@ body a:hover {
   border: 2px solid #444444
 }
 
-#usernameDropdown:hover {
+
+#logout, #settings {
+  border: 2px solid black;
+  border-radius: 13px;
+  margin: 4px;
+  padding: 4px;
+}
+
+#logout:hover, #settings:hover {
   cursor: pointer;
   background-color: #666666;
 }

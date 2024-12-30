@@ -14,7 +14,7 @@ from sqlescapy import sqlescape
 
 # In program imports
 from userManagement import verifyUserPassword
-from database import checkIfDatabaseExists, doDatabaseQuery
+from database import checkIfDatabaseExists, doDatabaseQuery, doDatabaseCommit
 
 app = Flask(__name__)
 login_manager = LoginManager(app)
@@ -88,7 +88,7 @@ def load_user(username):
 @app.route('/')
 @login_required
 def index():
-    return redirect(url_for('dashboard'))
+    return redirect(url_for('zones'))
 
 @app.route('/favicon.ico')
 def returnIcon():
@@ -111,7 +111,9 @@ def login():
         
         # Check if user actually exists in database
         # DO HERE incase somebody is bruteforcing logins with different names, real or not.
-        if verifyUserPassword(santizedUsername, santizedPassword):
+        # if verifyUserPassword(santizedUsername, santizedPassword):
+        # TEMP
+        if True:
             # Verified password, permit login (Eventually integrate 2FA with FIDO or U2F)
             # Set user object for flask to santizedUsername
             # Register user with flask session by passing in username as string, and it makes it a user object same character set as string
@@ -129,7 +131,7 @@ def login():
             print("Login!")
             # Redirect to dashboard when finished if requestedUrl is None, else redirect to requestedUrl
             if session['wants_url'] is None:
-                return redirect(url_for('dashboard'))
+                return redirect(url_for('zones'))
             else:
                 return redirect(session['wants_url'])
         else:
@@ -152,8 +154,14 @@ def logout():
 # @login_required
 def zones():
     session.pop('_flashes', None)
-    # Permission Check Dashboard
-    return render_template('zones.html', commit_id=commit_id, release_id=release_id)
+    
+    # Future check to get all zones from user
+    # For now get all existing
+    
+    dbReturn = (doDatabaseQuery("Select zone_label from zones"))
+    dbLength = len(dbReturn)
+    
+    return render_template('zones.html', commit_id=commit_id, release_id=release_id, zones=dbReturn, len=dbLength)
 
 @app.route('/zones/<zone_label>')
 # @login_required
@@ -170,7 +178,106 @@ def zone_examine(zone_label):
     except:
         # Does not exist, 
         return("Zone does not exist.")
+
+@app.route('/settings/', methods=['GET', 'POST'])
+# @login_required
+def settings():
+    session.pop('_flashes', None)
+    
+    # Check is the user is an admin
+    # Make sure to .lower() strings so matching works correctly!
+    try:
+        userIsAdmin = doDatabaseQuery("Select isAdmin from userTable WHERE username='{0}'".format((current_user.username).lower()))[0][0]
+    except:
+        userIsAdmin = 0;
         
+    if request.method == 'POST':
+        requestDetails = json.loads((request.data).decode())
+        print('POST', requestDetails)
+        
+        # User Add Method
+        if (requestDetails["submissionType"] == 'userAdd'):
+            # Admin required
+            if (userIsAdmin == 1):
+                doDatabaseCommit("INSERT INTO userTable (username, password, isAdmin) VALUES ('{0}', '{1}', '{2}');".format(requestDetails["username"], requestDetails["password"], requestDetails["isAdmin"]))
+            else:
+                return Response(status=401)
+        # User Delete Method
+        elif (requestDetails["submissionType"] == 'userDelete'):
+            # Admin required
+            if (userIsAdmin == 1):
+                
+                # If Admin user don't delete,
+                if (requestDetails["username"] == 'admin'):
+                    return Response(status=403)
+                else:
+                    doDatabaseCommit("DELETE FROM userTable WHERE username = '{0}';".format(requestDetails["username"]))
+            else:
+                return Response(status=401)
+        # User Reset Password Method
+        elif (requestDetails["submissionType"] == 'userResetPassword'):
+            # Admin required
+            if (userIsAdmin == 1):
+                
+                # If Admin user don't delete,
+                doDatabaseCommit("UPDATE userTable SET password = '{0}' WHERE username = '{1}';".format(requestDetails["password"], requestDetails["username"]))
+            else:
+                return Response(status=401)
+        # Self Reset Password Method using logged in user cookie
+        elif (requestDetails["submissionType"] == 'selfResetPassword'):
+                
+            doDatabaseCommit("UPDATE userTable SET password = '{0}' WHERE username = '{1}';".format(requestDetails["password"], current_user.username))
+            
+        return Response(status=200)
+    
+        
+    return render_template('settings.html', commit_id=commit_id, release_id=release_id, showAdminSettings=userIsAdmin)      
+
+@app.route('/settings/get_users', methods=['GET'])
+# @login_required  
+def getUsersCall():
+    dbReturn = (doDatabaseQuery("Select username from userTable"));
+    # Convert to plaintext array
+    dbReturnArray = []
+    for returnurn in dbReturn:
+        dbReturnArray.append(returnurn[0])
+    return dbReturnArray
+
+@app.route('/settings/auditlog', methods=['GET'])
+# @login_required  
+def settingsAuditLog():
+
+    return Response(status=404)
+
+@app.route('/settings/changezoneperms/<username>', methods=['GET'])
+# @login_required  
+def changeUserZonePerms(username):
+
+    return Response(status=404)
+
+@app.route('/settings/zoneedit', methods=['GET'])
+# @login_required  
+def zoneedit():
+
+    return Response(status=404)
+
+@app.route('/settings/apikeys', methods=['GET'])
+# @login_required  
+def apiedit():
+
+    return Response(status=404)
+
+@app.route('/settings/lockdown', methods=['GET'])
+# @login_required  
+def lockdown_edit():
+
+    return Response(status=404)
+
+@app.route('/settings/sounds', methods=['GET'])
+# @login_required  
+def sound_edit():
+
+    return Response(status=404)
 
 def stopPyVoipDebug():
     # Copied from ChatGPT, I have no shame.

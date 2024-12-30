@@ -1,16 +1,61 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1>{% block title %}  {% endblock %}</h1>
-    <h3>-</h3> <a class="nav-link" href="/settings/add_user">Add User</a>
-    <h3>-</h3> <a class="nav-link" href="/settings/reset_password">Reset User Password</a>
-    <h3>-</h3> <a class="nav-link" href="/settings/sync_ldap">Sync LDAP To User DB</a>
-    <h3>-</h3> <a class="nav-link" href="/settings/delete_user">Delete User</a>
-    <h3>-</h3> <a class="nav-link" href="/settings/manage_perms">Manage User Permissions</a>
-    <h3>-</h3> <a class="nav-link" href="/settings/audit_log">Show and Sort Audit Log</a>
-    <h3>-</h3> <a class="nav-link" href="/settings/add_camera">Add Camera With Onvif AutoConfigure</a>
-    <h3>-</h3> <a class="nav-link" href="/settings/add_camera_manual">Add Camera Manually</a>
-    <h3>-</h3> <a class="nav-link" href="/settings/camera_models">Camera Models</a>
-    <h3>-</h3> <a class="nav-link" href="/settings/delete_camera">Delete Camera</a>
-    <h3>-</h3>
+
+<link rel="stylesheet" href="{{url_for('static', filename='css/settings.css')}}">
+
+<div id="innerbody">
+
+    
+    <div id="adminSettings">
+        <div class="settingsHeader">
+            Admin Settings
+        </div>
+        <div id="Add User" class="settingEntry">
+            Add User 
+        </div> 
+        <div id="Delete User" class="settingEntry">
+            Delete User 
+        </div> 
+        <div id="Audit Log" class="settingEntry">
+            Audit Log
+        </div> 
+        <div id="Reset User Password" class="settingEntry">
+            Reset User Password 
+        </div> 
+        <div id="User Zone Permissions" class="settingEntry">
+            User Zone Permissions
+        </div> 
+        <div id="Change Zone Settings" class="settingEntry">
+            Zone list Edit / SIP details & Zone PNG  (Change Zone Settings)
+        </div> 
+        <div id="Change API Settings" class="settingEntry">
+            Generate API keys for remote lockdown / bell / test trigger
+        </div> 
+        <div id="Lockdown Settings" class="settingEntry">
+            Toggle Lockdown Test Mode & Toggle Zone Lockdown HTTP calls
+        </div> 
+        <div id="sounds" class="settingEntry">
+            Set default bell sound, lockdown sound and test sounds
+        </div> 
+        
+    </div>
+    
+    <div id="userSettings">
+        <div class="settingsHeader">
+            User Settings
+        </div>
+        <div id="userChangePassword" class="settingEntry">
+            Change Password
+        </div> 
+    </div>
+    
+    <script type="text/javascript">
+        var showAdminSettings = '{{ showAdminSettings }}'
+        window.showAdminSettings = showAdminSettings;
+    </script>
+    
+    <script src="{{url_for('static', filename='js/settings.js')}}"></script>
+    
+</div>
 {% endblock %}

@@ -10,6 +10,10 @@
 <br>
 <br>
 
-<a href="/zones/ExampleZone">Example Zone</a>
+{%for i in range(0, len)%} 
+  
+    <a href="/zones/{{zones[i][0]}}">{{zones[i][0]}}</a> <br>
+
+{%endfor%} 
 
 {% endblock %}

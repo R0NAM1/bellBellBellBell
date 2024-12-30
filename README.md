@@ -3,10 +3,10 @@ bellBellBellBell is an open source bell scheduler that works over SIP and has us
 Currently just a test python script that just works.
 
 To do:
+- User system with logging
 - Web interface (Dashboard, maps, zones, schedules, system options)
 - Local SQLite Database
 - Each zone has 1 sip connection
-- User system with logging
 - Bell logging with results if ran or not
 
 == RULES ==
