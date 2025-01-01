@@ -4,7 +4,7 @@ passwordRandomKey = 'ChangeMeToo!'
 databasePath = "bellBellBellBell.db";
 
 def doDatabaseQuery(callToMake):
-    # IF we have an error, ignore and try again
+    # IF we have an error, ignore and try again 5 times
     while True:
         try:
             myDatabase = sqlite3.connect('bellBellBellBell.db') 
@@ -17,7 +17,7 @@ def doDatabaseQuery(callToMake):
         time.sleep(1)
         
 def doDatabaseCommit(callToMake):
-    # IF we have an error, ignore and try again
+    # IF we have an error, ignore and try again 5 times
     while True:
         try:
             myDatabase = sqlite3.connect('bellBellBellBell.db') 

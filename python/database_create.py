@@ -43,7 +43,7 @@ else:
     cursor.execute("""
     INSERT INTO userTable (username, password, isAdmin, allowedZones) 
     VALUES (?, ?, ?, ?);
-    """, ('admin', 'password', True, '["ExampleZone"]'))
+    """, ('admin', 'password', True, '[]'))
     
     # Temp data
     cursor.execute("""

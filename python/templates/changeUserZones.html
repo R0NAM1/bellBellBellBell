@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{{url_for('static', filename='css/changeUserZones.css')}}">
+
+<div id="innerbody">
+
+    <div id="tittle">
+        Change Allowed Zones for XDDCC
+    </div>
+
+    <div id="zoneList">
+    </div>
+    
+    <script type="text/javascript">
+        var zones = '{{ zones }}'
+        window.zones = zones;
+
+        var userExitingZonesReturn = '{{ userExitingZonesReturn }}'
+        userExitingZonesReturn = JSON.parse(userExitingZonesReturn.replaceAll('&#34;', '"'));
+        window.userExitingZonesReturn = userExitingZonesReturn;
+    </script>
+    
+    <script src="{{url_for('static', filename='js/changeUserZones.js')}}"></script>
+    
+</div>
+{% endblock %}

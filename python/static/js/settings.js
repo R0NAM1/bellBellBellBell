@@ -488,12 +488,13 @@ function runEventListeners() {
             var userList = document.createElement('select');
 
             for (var name of data) {
-                newOption = document.createElement('option');
-                newOption.value = name;
-                newOption.text = name;
-                userList.appendChild(newOption);
+                if (name !== 'admin') {
+                    newOption = document.createElement('option');
+                    newOption.value = name;
+                    newOption.text = name;
+                    userList.appendChild(newOption);
+                }
             }
-
             userList.id = 'userList';
 
             customContent.appendChild(userList);
@@ -585,7 +586,7 @@ resetUserElement.addEventListener("click", (e) => {
 
 function checkIfAdmin() {
     console.log("showAdminSettings", window.showAdminSettings)
-    if (window.showAdminSettings == 1) {
+    if (window.showAdminSettings == 'True') {
         // User is admin, show admin settings
         var adminElement = document.getElementById('adminSettings');
         adminElement.style.display = 'block';

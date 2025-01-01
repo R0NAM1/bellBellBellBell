@@ -130,10 +130,13 @@ def login():
             flash('Your logged in!')
             print("Login!")
             # Redirect to dashboard when finished if requestedUrl is None, else redirect to requestedUrl
-            if session['wants_url'] is None:
+            try:
+                if session['wants_url'] is None:
+                    return redirect(url_for('zones'))
+                else:
+                    return redirect(session['wants_url'])
+            except:
                 return redirect(url_for('zones'))
-            else:
-                return redirect(session['wants_url'])
         else:
             # Could not verify password, give generic message
             session.pop('_flashes', None)
@@ -198,14 +201,14 @@ def settings():
         # User Add Method
         if (requestDetails["submissionType"] == 'userAdd'):
             # Admin required
-            if (userIsAdmin == 1):
+            if (userIsAdmin == 'True'):
                 doDatabaseCommit("INSERT INTO userTable (username, password, isAdmin) VALUES ('{0}', '{1}', '{2}');".format(requestDetails["username"], requestDetails["password"], requestDetails["isAdmin"]))
             else:
                 return Response(status=401)
         # User Delete Method
         elif (requestDetails["submissionType"] == 'userDelete'):
             # Admin required
-            if (userIsAdmin == 1):
+            if (userIsAdmin == 'True'):
                 
                 # If Admin user don't delete,
                 if (requestDetails["username"] == 'admin'):
@@ -217,7 +220,7 @@ def settings():
         # User Reset Password Method
         elif (requestDetails["submissionType"] == 'userResetPassword'):
             # Admin required
-            if (userIsAdmin == 1):
+            if (userIsAdmin == 'True'):
                 
                 # If Admin user don't delete,
                 doDatabaseCommit("UPDATE userTable SET password = '{0}' WHERE username = '{1}';".format(requestDetails["password"], requestDetails["username"]))
@@ -227,7 +230,14 @@ def settings():
         elif (requestDetails["submissionType"] == 'selfResetPassword'):
                 
             doDatabaseCommit("UPDATE userTable SET password = '{0}' WHERE username = '{1}';".format(requestDetails["password"], current_user.username))
-            
+         # Self Reset Password Method using logged in user cookie
+        elif (requestDetails["submissionType"] == 'changeUserZones'):
+            # Admin required
+            if (userIsAdmin == 'True'):   
+                print("Submission", requestDetails["newZones"])
+                doDatabaseCommit("UPDATE userTable SET allowedZones = '{0}' WHERE username = '{1}';".format(requestDetails["newZones"], requestDetails["username"]))
+            else:
+                return Response(status=401)         
         return Response(status=200)
     
         
@@ -243,6 +253,16 @@ def getUsersCall():
         dbReturnArray.append(returnurn[0])
     return dbReturnArray
 
+@app.route('/settings/get_zones', methods=['GET'])
+# @login_required  
+def getZonesCall():
+    dbReturn = doDatabaseQuery("Select zone_label from zones")
+    # Convert to plaintext array
+    dbReturnArray = []
+    for returnurn in dbReturn:
+        dbReturnArray.append(returnurn[0])
+    return dbReturnArray
+
 @app.route('/settings/auditlog', methods=['GET'])
 # @login_required  
 def settingsAuditLog():
@@ -252,14 +272,50 @@ def settingsAuditLog():
 @app.route('/settings/changezoneperms/<username>', methods=['GET'])
 # @login_required  
 def changeUserZonePerms(username):
+    
+    if username == 'admin':
+        return Response('Admin user cannot be used to access schedules & zones.')
+    else:
+        
+        # Check if user is an admin
+        try:
+            userIsAdmin = doDatabaseQuery("Select isAdmin from userTable WHERE username='{0}'".format((current_user.username).lower()))[0][0]
+        except:
+            userIsAdmin = 0;
+            
+        if userIsAdmin:
+            
+            zonesdbReturn = (doDatabaseQuery("Select zone_label from zones"))
+            
+            userExitingZonesReturn = (doDatabaseQuery("Select allowedZones from userTable WHERE username = '{0}'".format(username)))[0][0]
+                        
+            return render_template('changeUserZones.html', commit_id=commit_id, release_id=release_id, zones=zonesdbReturn, userExitingZonesReturn=userExitingZonesReturn)      
+        else:
+            return Response('Not an Admin, not allowed.')
 
     return Response(status=404)
 
-@app.route('/settings/zoneedit', methods=['GET'])
+@app.route('/settings/zoneedit', methods=['GET', 'POST'])
 # @login_required  
 def zoneedit():
-
+    # IF POST
+    if request.method == 'POST':
+        return Response(status=404)
+    
+    # Check if user is an admin
+    try:
+        userIsAdmin = doDatabaseQuery("Select isAdmin from userTable WHERE username='{0}'".format((current_user.username).lower()))[0][0]
+    except:
+        userIsAdmin = 0;
+        
+    if userIsAdmin:        
+        return render_template('zoneedit.html', commit_id=commit_id, release_id=release_id, zones=zonesdbReturn)      
+    else:
+        return Response('Not an Admin, not allowed.')
+    
     return Response(status=404)
+
+# Zone property endpoints
 
 @app.route('/settings/apikeys', methods=['GET'])
 # @login_required  

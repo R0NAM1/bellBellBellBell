@@ -1,6 +1,5 @@
 function registerEventListeners() {
     var userElement = document.getElementById('userHover');
-    console.log(userElement)
 
     userElement.addEventListener('mouseover', () => {
         var popup = document.getElementById('usernameDropdown');
