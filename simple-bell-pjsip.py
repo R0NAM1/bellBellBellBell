@@ -2,7 +2,6 @@ from datetime import datetime
 import pjsua2 as pj
 import pandas
 import time
-import wave
 import traceback
 
 ## Simple Bell is a simple loop that checks every second if this minute has a bell associated
@@ -11,13 +10,14 @@ import traceback
 ## Also check if it is Sun - Sat, only work on configured days
 # This version is a rewrite from using pyVoIP to PjSIP
 
+# Related settings
 myIpAddress = '10.42.0.8' # Put in the address on the interface you want to use
 bellExtension = 425 # INT # Extension to call that will act as the bell interface
 sipUsername = '420'
 sipPassword = 'password'
-sipServer = '10.42.0.9'
+sipServer = '10.1.2.3'
 sipServerPort = 5060
-bellWav = 'sounds/bells/default_bell_16bit.wav' # MUST BE 8000hz mono
+bellWav = 'sounds/bells/default_bell_16bit.wav' # MUST BE 16000hz mono
 
 # Comment out days that don't need to ring
 daysToRing = [
@@ -61,7 +61,7 @@ class MyCall(pj.Call):
     def __init__(self, acc, dest_uri):
         pj.Call.__init__(self, acc)
         self.dest_uri = dest_uri
-
+    # Add call reject handling!
     def on_state(self):
         if self.info().state == pj.PJSIP_INV_STATE_CALLING:
             print("Invalid State Calling Error", self.dest_uri)
@@ -99,11 +99,11 @@ def attemptCall(account):
             if callHappened:
                 break
             
-            print("===============================")
+            print("------------------------------------")
             print("---- Attempt " + str(counter) + "...")
             
-            if (counter > 10):
-                print("---- Over 10 Attempts! Abandoning all hope! (breaking)")
+            if (counter > 12):
+                print("---- Over 12 Attempts! Abandoning all hope! (breaking)")
                 break            
             
             # Dial Bell extension
@@ -114,25 +114,44 @@ def attemptCall(account):
             call.makeCall(dest_uri, prm)
             
             print("---- Call made! Waiting for call to be answered for 20000 cycles....")
-            # Wait until call it answered....
+            # Wait until call is answered....
             
             answerCounter = 1
             while True:
-                ci = call.getInfo()
+                
+                # Check if call even still exists or if was rejected
+                try:
+                    ci = call.getInfo()
+                except:
+                    print("!!! | Exception raised waiting for call to be answered, happens if call disconnects!")
+                    print("!!! | Going to treat this as a failed attempt, trying next attempt in 5 seconds")
+                    time.sleep(5)
+                    # End attempt
+                    break
+                
                 if answerCounter == 20000:
-                    print("Waited 20000 cycles for call to be answered but it wasn't.")
+                    print("Waited 20000 cycles for call to be answered but it wasn't. Breaking!")
                     break
                 elif(ci.stateText == "CONFIRMED"):
                     print("-- Call was answered!!!")
                     break
                 else:
                     time.sleep(0.01)
-                    print("Check " + str(answerCounter) + " | " + ci.stateText)
+                    if answerCounter == 500:
+                        print("-- 500 out of 20000 call checks...")
+                    elif answerCounter == 1000:
+                        print("-- 1000 out of 20000 call checks...")
+                    elif answerCounter == 10000:
+                        print("-- 10000 out of 20000 call checks...")
+                    elif answerCounter == 15000:
+                        print("-- 15000 out of 20000 call checks...")
                     answerCounter = answerCounter + 1
             
+            # Give PJSIP time to process all this in the background
             time.sleep(0.2)
-            ci = call.getInfo()
+            
             # Play the audio over the SIP call
+            ci = call.getInfo()
             mi = ci.media[0]
             m = call.getMedia(mi.index)
             am = pj.AudioMedia.typecastFromMedia(m)
@@ -144,17 +163,27 @@ def attemptCall(account):
             wav_player.startTransmit(am)
             
             # Wait for the audio to finish playing
+            wavCount = 0
             while True:
                 if wav_player.is_end_of_file == True:
                     print("---- Audio written to SIP stream! Hanging up now.")            
                     break
                 else:
+                    if wavCount >= 500:
+                        print("DEBUG | wavCount exceeded 500, end of file might not have occured! Breaking!")
+                        try:
+                            prm = pj.CallOpParam(True) # Default settings
+                            call.hangup(prm)
+                        except:
+                            pass
+                        break
                     # print("-- Not at EOF: " + str(wav_player.is_end_of_file))
+                    wavCount = wavCount + 1
                     time.sleep(0.1)
 
             callHappened = True
 
-            print("======================================================")
+            print("------------------------------------")
             print("")
             
             # Hang up the call
@@ -165,7 +194,7 @@ def attemptCall(account):
             break # Break out of forever loop
             
         except Exception as e:
-            print(f"!! An error occurred: {e}")
+            print(f"DEBUG | !! An error occurred: {e}")
             print("Traceback follows as: " + str(traceback.format_exc()))
             counter = counter + 1
             time.sleep(1)
@@ -194,6 +223,7 @@ if __name__ == '__main__':
     
     # Start the library
     ep.libInit(ep_cfg)
+    # Don't use any sound devices detected by ALSA automatically
     ep.audDevManager().setNullDev()
     ep.libStart()
     
@@ -213,6 +243,8 @@ if __name__ == '__main__':
     acc = Account()
     acc.create(acfg)
     print("-- Phone account created, registered & started.")
+    print("====== simple-bell.py is now started, operational and waiting for a defined time! ===================")
+    print("")
     
     while True:
         # Loop start!
@@ -232,17 +264,18 @@ if __name__ == '__main__':
             formatted_time = rounded_minute.strftime("%H:%M")
             
             if formatted_time in timesToRing:
-            # if True:
+            # if True: # Use for debugging
                 
                 # We are in a ringable minute and need to ring the bell!
-                print("-- Time to ring bell at " + formatted_time + " on " + formatted_date + "!")
-                
-                # We just regegister every time so we don't have to deal with the registration expiring, which happens!
-                
+            
+                print("=========================================================================================")
+                print("!-- Time to ring bell at " + formatted_time + " on " + formatted_date + "!")                
 
                 attemptCall(acc)
 
                 print("-- Call done! Sleeping for 60 seconds to not ring again...")
+                print("=========================================================================================")
+                print("")
                 
                 # Bell has rung! Wait 60 seconds to it's sure for an entire minute to pass, people don't put bells 3 minutes apart, 
                 time.sleep(60)
