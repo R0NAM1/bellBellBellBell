@@ -3,6 +3,7 @@ import pjsua2 as pj
 import pandas
 import time
 import traceback
+import subprocess
 
 ## Simple Bell is a simple loop that checks every second if this minute has a bell associated
 ## If so then ring the bell and flag it's been rung this minute
@@ -11,13 +12,15 @@ import traceback
 # This version is a rewrite from using pyVoIP to PjSIP
 
 # Related settings
-myIpAddress = '10.42.0.8' # Put in the address on the interface you want to use
 bellExtension = 425 # INT # Extension to call that will act as the bell interface
 sipUsername = '420'
 sipPassword = 'password'
 sipServer = '10.1.2.3'
 sipServerPort = 5060
-bellWav = 'sounds/bells/default_bell_16bit.wav' # MUST BE 16000hz mono
+bellWav = 'sounds/bells/default_bell_2s.wav' # MUST BE 16000hz mono, default file has 2 second delay at start
+useMulticast = True #Overrides SIP account and uses muticast with pcm_mulaw audio
+multicastAddress = '237.100.100.100'
+multicastPort = 25311
 
 # Comment out days that don't need to ring
 daysToRing = [
@@ -89,7 +92,7 @@ class AudioMediaPlayer(pj.AudioMediaPlayer):
         print("-- Setting EOF flag --")
         self.is_end_of_file = True
 
-def attemptCall(account):
+def attemptSIPCall(account):
     print("-- Dialing Specified SIP Extension " + str(bellExtension) + ".")
     counter = 1
     callHappened = False # Failsafe so we don't accidently double call
@@ -199,50 +202,63 @@ def attemptCall(account):
             counter = counter + 1
             time.sleep(1)
 
+def attemptMulticastCall():
+    print("-- Making multicast call to " + multicastAddress + ":" +  str(multicastPort) + ".")
+    ffmpegCommand = "ffmpeg -re -i " + bellWav + " -filter_complex 'aresample=8000,asetnsamples=n=160' -acodec pcm_mulaw -ac 1 -f rtp 'rtp://@" + multicastAddress + ':' + str(multicastPort) + "'"
+    # print("-- DEBUG! | Running command: " + ffmpegCommand)
+
+    subprocess.call(ffmpegCommand, shell=True)
+
+    
 # Main loop
 # Single threaded so while True is acceptable here since SIGINT will be caught just fine
 if __name__ == '__main__':
     print("===== Simple bellBellBellBell started! =====")
-    print("-- Running on the pjsip library =====================================================================")
-                
-    # Also most of the below is copy and pasted examples, but it works so I do not care!
-    # Create and initialize the library
-    ep_cfg = pj.EpConfig()
-    ep_cfg.logConfig.level = 0
-    # ep_cfg.logConfig.console_level = 0
-    # ep_cfg.logConfig.msg_logging = False
-    # Only needed if we do our own thread management sometimes I think? PjSip manages it's own crap
-    # ep_cfg.uaConfig.threadCnt = 0
-    ep = pj.Endpoint()
-    ep.libCreate()
+    if useMulticast == False:
+        print("-- Running on the pjsip library with SIP Option Selected =====================================================================")
+                    
+        # Also most of the below is copy and pasted examples, but it works so I do not care!
+        # Create and initialize the library
+        ep_cfg = pj.EpConfig()
+        ep_cfg.logConfig.level = 0
+        # ep_cfg.logConfig.console_level = 0
+        # ep_cfg.logConfig.msg_logging = False
+        # Only needed if we do our own thread management sometimes I think? PjSip manages it's own crap
+        # ep_cfg.uaConfig.threadCnt = 0
+        ep = pj.Endpoint()
+        ep.libCreate()
+        
+        # Create SIP transport. Error handling sample is shown
+        sipTpConfig = pj.TransportConfig()
+        sipTpConfig.port = 5060
+        ep.transportCreate(pj.PJSIP_TRANSPORT_UDP, sipTpConfig)
+        
+        # Start the library
+        ep.libInit(ep_cfg)
+        # Don't use any sound devices detected by ALSA automatically
+        ep.audDevManager().setNullDev()
+        ep.libStart()
+        
+        print("-- pjsip initialized  ===============================================================================")
+        print("")
+        
+        # Create the phone account config
+        acfg = pj.AccountConfig()
+        acfg.idUri = "sip:" + sipUsername + "@" + sipServer + ":" + str(sipServerPort)
+        acfg.regConfig.registrarUri = "sip:" + sipServer + ":" + str(sipServerPort)
+        cred = pj.AuthCredInfo("digest", "*", sipUsername, 0, sipPassword)
+        acfg.sipConfig.authCreds.append(cred)
+        
+        print("-- Account config loaded")
+        
+        # Create account object based on above config
+        acc = Account()
+        acc.create(acfg)
+        print("-- Phone account created, registered & started.")
     
-    # Create SIP transport. Error handling sample is shown
-    sipTpConfig = pj.TransportConfig()
-    sipTpConfig.port = 5060
-    ep.transportCreate(pj.PJSIP_TRANSPORT_UDP, sipTpConfig)
-    
-    # Start the library
-    ep.libInit(ep_cfg)
-    # Don't use any sound devices detected by ALSA automatically
-    ep.audDevManager().setNullDev()
-    ep.libStart()
-    
-    print("-- pjsip initialized  ===============================================================================")
-    print("")
-    
-    # Create the phone account config
-    acfg = pj.AccountConfig()
-    acfg.idUri = "sip:" + sipUsername + "@" + sipServer + ":" + str(sipServerPort)
-    acfg.regConfig.registrarUri = "sip:" + sipServer + ":" + str(sipServerPort)
-    cred = pj.AuthCredInfo("digest", "*", sipUsername, 0, sipPassword)
-    acfg.sipConfig.authCreds.append(cred)
-    
-    print("-- Account config loaded")
-    
-    # Create account object based on above config
-    acc = Account()
-    acc.create(acfg)
-    print("-- Phone account created, registered & started.")
+    else:
+        print("-- Running on subprocess library with Mulicast Option Selected =====================================================================")
+        print("-- FFMPEG being used as Multicast broadcaster")
     print("====== simple-bell.py is now started, operational and waiting for a defined time! ===================")
     print("")
     
@@ -263,15 +279,19 @@ if __name__ == '__main__':
             rounded_minute = current_time.replace(second=0, microsecond=0)
             formatted_time = rounded_minute.strftime("%H:%M")
             
-            if formatted_time in timesToRing:
-            # if True: # Use for debugging
+            # if formatted_time in timesToRing:
+            if True: # Use for debugging
                 
                 # We are in a ringable minute and need to ring the bell!
             
                 print("=========================================================================================")
                 print("!-- Time to ring bell at " + formatted_time + " on " + formatted_date + "!")                
 
-                attemptCall(acc)
+                if useMulticast == False:
+
+                    attemptSIPCall(acc)
+                else:
+                    attemptMulticastCall()
 
                 print("-- Call done! Sleeping for 60 seconds to not ring again...")
                 print("=========================================================================================")
