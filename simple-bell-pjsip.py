@@ -279,8 +279,8 @@ if __name__ == '__main__':
             rounded_minute = current_time.replace(second=0, microsecond=0)
             formatted_time = rounded_minute.strftime("%H:%M")
             
-            # if formatted_time in timesToRing:
-            if True: # Use for debugging
+            if formatted_time in timesToRing:
+            #if True: # Use for debugging
                 
                 # We are in a ringable minute and need to ring the bell!
             
